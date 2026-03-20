@@ -1,43 +1,21 @@
 import numpy as np
 import pickle
-from scipy.io import wavfile
 from tensorflow.keras.models import load_model
+
+# IMPORT YOUR FEATURE FUNCTION
+from src.data_processing.feature_extraction import extract_features
 
 
 # ==========================
-# LOAD MODEL + ENCODER
+# LOAD MODEL + ENCODER + SCALER
 # ==========================
 model = load_model("models/panic_voice_model.h5")
 
 with open("models/label_encoder.pkl", "rb") as f:
     encoder = pickle.load(f)
 
-
-# ==========================
-# FEATURE EXTRACTION (SAME AS TRAINING)
-# ==========================
-def extract_features(file_path):
-    sr, audio = wavfile.read(file_path)
-
-    audio = audio.astype(np.float32)
-
-    if len(audio.shape) > 1:
-        audio = np.mean(audio, axis=1)
-
-    if np.max(np.abs(audio)) != 0:
-        audio = audio / np.max(np.abs(audio))
-
-    max_len = 16000
-
-    if len(audio) < max_len:
-        audio = np.pad(audio, (0, max_len - len(audio)))
-    else:
-        audio = audio[:max_len]
-
-    feature = audio.reshape(160, 100)
-    feature = feature[..., np.newaxis]
-
-    return feature
+with open("models/scaler.pkl", "rb") as f:
+    scaler = pickle.load(f)
 
 
 # ==========================
@@ -45,12 +23,18 @@ def extract_features(file_path):
 # ==========================
 def predict_audio(file_path):
     feature = extract_features(file_path)
-    feature = feature.reshape(1, 160, 100, 1)
 
+    if feature is None:
+        return "Error", 0
+
+    # Scale feature (IMPORTANT)
+    feature = scaler.transform([feature])
+
+    # Predict
     prediction = model.predict(feature)
 
     predicted_index = np.argmax(prediction)
-    confidence = np.max(prediction)
+    confidence = float(np.max(prediction))
 
     emotion = encoder.inverse_transform([predicted_index])[0]
 
@@ -58,10 +42,10 @@ def predict_audio(file_path):
 
 
 # ==========================
-# TEST WITH YOUR AUDIO
+# TEST
 # ==========================
 if __name__ == "__main__":
-    file_path = "test_audio/03-01-03-01-01-02-17.wav"  
+    file_path = "test_audio/03-01-06-01-02-01-01.wav" 
 
     emotion, confidence = predict_audio(file_path)
 
