@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoiceSecure</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<nav>
+  <h2>VoiceSecure</h2>
+  <div>
+    <a href="index.html"><button>Home</button></a>
+    <a href="dashboard.html"><button>Dashboard</button></a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>AI Panic Voice Detector</h1>
+
+  <div class="card">
+  <h2>Problem Statement</h2>
+  <p>
+    In real-world emergency situations such as accidents, assaults, kidnappings, or medical crises, victims often cannot manually call for help or operate their mobile devices. Most existing safety systems depend on user interaction like pressing a panic button or making a call, which may not be possible during moments of fear, stress, or physical restraint.
+  </p>
+  <p>
+    This delay in communication can lead to serious consequences, as emergency response is highly time-sensitive. Therefore, there is a critical need for an intelligent system that can detect danger automatically without requiring any manual action from the user.
+  </p>
+ </div>
+
+  <div class="card">
+    <h2>What does this project do?</h2>
+  <p>
+    VoiceGuard is an AI-powered safety system that automatically detects panic or distress in a person's voice and triggers emergency alerts in real time. 
+    Unlike traditional emergency applications that require manual interaction, this system continuously analyzes voice signals using machine learning to identify stress patterns, fear, and urgency.
+  </p>
+  <p>
+    When a potential emergency is detected, the system instantly activates safety protocols such as sending alerts to predefined contacts, sharing live location, and initiating emergency responses. 
+    This ensures faster assistance even in situations where the user is unable to access their device or call for help.
+  </p>
+  </div>
+
+  <div class="card">
+  <h2>What Problem Does VoiceSecure Solve?</h2>
+  <ul>
+    <li>Eliminates dependency on manual emergency actions</li>
+    <li>Detects distress even when the user cannot use their phone</li>
+    <li>Reduces response time in critical situations</li>
+    <li>Provides safety support in hidden or dangerous scenarios</li>
+    <li>Works as a passive safety system running in the background</li>
+  </ul>
+</div>
+
+  <div class="card">
+    <h2>How VoiceSecure Works</h2>
+  <ol>
+    <li><strong>Voice Monitoring:</strong> The system continuously listens to voice input through the device microphone.</li>
+    
+    <li><strong>Audio Processing:</strong> Captured audio is processed and converted into meaningful features such as pitch, energy, and MFCC.</li>
+    
+    <li><strong>AI Analysis:</strong> A trained machine learning model analyzes the voice patterns to detect emotions like fear, stress, or panic.</li>
+    
+    <li><strong>Panic Detection:</strong> The system calculates a panic score based on emotional intensity and voice characteristics.</li>
+    
+    <li><strong>Decision Making:</strong> If the panic score crosses a predefined threshold, the system identifies the situation as an emergency.</li>
+    
+    <li><strong>Automatic Alert:</strong> Emergency alerts are instantly sent to predefined contacts along with the user’s location.</li>
+    
+    <li><strong>Real-Time Response:</strong> Contacts receive notifications and can take immediate action to assist the user.</li>
+  </ol>
+  </div>
+
+
+
+  <button onclick="goToDashboard()">Go to Dashboard</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

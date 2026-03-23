@@ -1,0 +1,48 @@
+.poppins-thin {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+body {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  background: #0f172a;
+  color: white;
+}
+
+nav {
+  background: #1e293b;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+a {
+  color: white;
+  text-decoration: none;
+  margin-left: 15px;
+}
+
+.container {
+  padding: 40px;
+}
+
+.card {
+  background: #1e293b;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 10px;
+}
+
+h1 {
+  color: #38bdf8;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  background: #38bdf8;
+  cursor: pointer;
+  border-radius: 5px;
+}

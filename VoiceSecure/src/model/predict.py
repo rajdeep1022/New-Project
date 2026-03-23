@@ -45,11 +45,7 @@ def predict_audio(file_path):
 # TEST
 # ==========================
 if __name__ == "__main__":
-<<<<<<< Updated upstream
-    file_path = "test_audio/03-01-06-01-02-01-01.wav" 
-=======
-    file_path = "test_audio/03-01-04-01-01-01-02.wav"  
->>>>>>> Stashed changes
+    file_path = "test_audio/03-01-03-01-01-02-17.wav"  
 
     emotion, confidence = predict_audio(file_path)
 
