@@ -1,26 +1,39 @@
-function goToDashboard() {
-  window.location.href = "dashboard.html";
-}
+console.log("JS Loaded ✅");
 
-function detectPanic() {
-  const fileInput = document.getElementById("audioFile");
+async function uploadAudio() {
+    console.log("🔥 Button clicked");
 
-  if (!fileInput.files.length) {
-    alert("Please upload an audio file first!");
-    return;
-  }
+    const fileInput = document.getElementById("audioFile");
+    const emotionText = document.getElementById("emotion");
+    const scoreText = document.getElementById("score");
+    const statusText = document.getElementById("status");
 
-  const file = fileInput.files[0];
+    if (!fileInput.files.length) {
+        statusText.innerText = "Please upload file";
+        return;
+    }
 
-  // For now: simulate result
-  let panicScore = Math.floor(Math.random() * 100);
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
 
-  document.getElementById("emotion").innerText = panicScore > 60 ? "Fear" : "Normal";
-  document.getElementById("score").innerText = panicScore + "%";
+    try {
+        statusText.innerText = "Analyzing...";
 
-  if (panicScore > 70) {
-    document.getElementById("status").innerText = "🚨 ALERT TRIGGERED";
-  } else {
-    document.getElementById("status").innerText = "Safe";
-  }
+        const res = await fetch("http://127.0.0.1:5000/detect-panic", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+        console.log("Response:", data);
+
+        emotionText.innerText = data.emotion;
+        scoreText.innerText = data.panic_score + "%";
+
+        statusText.innerText = data.panic_score > 60 ? "🚨 Panic" : "✅ Safe";
+
+    } catch (err) {
+        console.error(err);
+        statusText.innerText = "Error connecting to server";
+    }
 }

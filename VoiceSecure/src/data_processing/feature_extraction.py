@@ -6,40 +6,52 @@ def extract_features(file_path):
     try:
         sr, audio = wavfile.read(file_path)
 
-        audio = audio.astype(np.float32)
-
         # mono
         if len(audio.shape) > 1:
             audio = np.mean(audio, axis=1)
 
         # normalize
-        if np.max(np.abs(audio)) != 0:
-            audio = audio / np.max(np.abs(audio))
+        audio = audio / (np.max(np.abs(audio)) + 1e-6)
 
-        # ===== TIME DOMAIN FEATURES =====
-        mean = np.mean(audio)
-        std = np.std(audio)
-        max_val = np.max(audio)
-        min_val = np.min(audio)
+        features = []
 
-        # ===== FREQUENCY DOMAIN =====
-        fft_vals = np.abs(fft(audio))[:len(audio)//2]
-
-        fft_mean = np.mean(fft_vals)
-        fft_std = np.std(fft_vals)
-
-        # ===== ENERGY =====
-        energy = np.sum(audio**2)
-
-        # Combine all features
-        feature = np.array([
-            mean, std, max_val, min_val,
-            fft_mean, fft_std,
-            energy
+        # 🔹 Time domain
+        features.extend([
+            np.mean(audio),
+            np.std(audio),
+            np.max(audio),
+            np.min(audio),
+            np.median(audio),
+            np.percentile(audio, 25),
+            np.percentile(audio, 75)
         ])
 
-        return feature
+        # 🔹 Energy
+        features.append(np.sum(audio**2))
 
-    except Exception as e:
-        print("Error:", e)
+        # 🔹 Zero crossing rate
+        features.append(np.mean(np.abs(np.diff(np.sign(audio)))))
+
+        # 🔥 FFT features (VERY IMPORTANT)
+        fft_vals = np.abs(fft(audio))[:len(audio)//2]
+
+        features.extend([
+            np.mean(fft_vals),
+            np.std(fft_vals),
+            np.max(fft_vals),
+            np.percentile(fft_vals, 25),
+            np.percentile(fft_vals, 75)
+        ])
+
+        # 🔥 Chunk-based features (MORE GRANULAR)
+        chunks = np.array_split(audio, 10)
+
+        for chunk in chunks:
+            features.append(np.mean(chunk))
+            features.append(np.std(chunk))
+            features.append(np.max(chunk))
+
+        return np.array(features)
+
+    except:
         return None
