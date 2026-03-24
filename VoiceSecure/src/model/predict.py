@@ -2,56 +2,43 @@ import numpy as np
 import pickle
 from tensorflow.keras.models import load_model
 
-# IMPORT YOUR FEATURE FUNCTION
 from src.data_processing.feature_extraction import extract_features
 
-
-# ==========================
-# LOAD MODEL + ENCODER + SCALER
-# ==========================
+# 🔹 Load model & tools
 model = load_model("models/panic_voice_model.h5")
-
-with open("models/label_encoder.pkl", "rb") as f:
-    encoder = pickle.load(f)
 
 with open("models/scaler.pkl", "rb") as f:
     scaler = pickle.load(f)
 
+with open("models/label_encoder.pkl", "rb") as f:
+    encoder = pickle.load(f)
 
-# ==========================
-# PREDICT FUNCTION
-# ==========================
+
 def predict_audio(file_path):
-    feature = extract_features(file_path)
+    features = extract_features(file_path)
 
-    if feature is None:
-        return "Error", 0
+    if features is None:
+        print("❌ Feature extraction failed")
+        return
 
-    # Scale feature (IMPORTANT)
-    feature = scaler.transform([feature])
+    # 🔥 IMPORTANT: scale features
+    features = scaler.transform([features])
 
-    # Predict
-    prediction = model.predict(feature)
+    # 🔹 Predict
+    preds = model.predict(features)[0]
 
-    predicted_index = np.argmax(prediction)
-    confidence = float(np.max(prediction))
+    # 🔍 Debug
+    print("Raw output:", preds)
 
-    emotion = encoder.inverse_transform([predicted_index])[0]
+    predicted_index = np.argmax(preds)
+    predicted_label = encoder.inverse_transform([predicted_index])[0]
+    confidence = preds[predicted_index]
 
-    return emotion, confidence
+    print(f"\n🎯 Prediction: {predicted_label}")
+    print(f"Confidence: {confidence:.2f}")
 
 
-# ==========================
-# TEST
-# ==========================
+# 🔹 Test with your file
 if __name__ == "__main__":
-<<<<<<< Updated upstream
-    file_path = "test_audio/03-01-06-01-02-01-01.wav" 
-=======
-    file_path = "test_audio/03-01-04-01-01-01-02.wav"  
->>>>>>> Stashed changes
-
-    emotion, confidence = predict_audio(file_path)
-
-    print("\n🎯 Prediction:", emotion)
-    print("Confidence:", confidence)
+    test_file = "test_audio/YAF_lot_angry.wav"   
+    predict_audio(test_file)

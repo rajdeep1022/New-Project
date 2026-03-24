@@ -5,147 +5,100 @@ import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.utils.class_weight import compute_class_weight
+from sklearn.utils import shuffle
 from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.callbacks import EarlyStopping
 
-# IMPORT YOUR MODULES
 from src.data_processing.feature_extraction import extract_features
 from src.model.model_architechture import build_model
 
-
-# ==========================
-# DATASET PATH
-# ==========================
 DATASET_PATH = "dataset/processed_datasets"
 
-
-# ==========================
-# LOAD DATASET
-# ==========================
 features = []
 labels = []
 
-for label in os.listdir(DATASET_PATH):
+print("🚀 Loading dataset...")
 
+# 🔹 Load dataset
+for label in os.listdir(DATASET_PATH):
     folder = os.path.join(DATASET_PATH, label)
 
     if not os.path.isdir(folder):
         continue
 
-    print(f"\n📂 Processing: {label}")
+    print(f"📂 Processing: {label}")
 
     for file in os.listdir(folder):
+        if file.lower().endswith(".wav"):
+            file_path = os.path.join(folder, file)
 
-        if not file.endswith(".wav"):
-            continue
+            feat = extract_features(file_path)
 
-        file_path = os.path.join(folder, file)
+            if feat is not None:
+                features.append(feat)
+                labels.append(label)
 
-        feature = extract_features(file_path)
-
-        if feature is not None:
-            features.append(feature)
-            labels.append(label)
-
-
-# ==========================
-# CHECK DATA
-# ==========================
-print("\n✅ Total samples:", len(features))
-
-if len(features) == 0:
-    raise ValueError("No data loaded!")
-
-
+# Convert
 X = np.array(features)
 y = np.array(labels)
 
+print("✅ Data shape:", X.shape)
 
-# ==========================
-# FEATURE SCALING
-# ==========================
+# 🔹 Encode labels
+encoder = LabelEncoder()
+y_encoded = encoder.fit_transform(y)
+y_categorical = to_categorical(y_encoded)
+
+# 🔹 Shuffle (IMPORTANT)
+X, y_categorical = shuffle(X, y_categorical, random_state=42)
+
+# 🔹 Scale features
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
 
-# Save scaler
+# 🔹 Save scaler & encoder
 os.makedirs("models", exist_ok=True)
 
 with open("models/scaler.pkl", "wb") as f:
     pickle.dump(scaler, f)
 
-
-# ==========================
-# ENCODE LABELS
-# ==========================
-encoder = LabelEncoder()
-y_encoded = encoder.fit_transform(y)
-
-y_categorical = to_categorical(y_encoded)
-
-# Save encoder
 with open("models/label_encoder.pkl", "wb") as f:
     pickle.dump(encoder, f)
 
-
-# ==========================
-# TRAIN-TEST SPLIT
-# ==========================
+# 🔹 Train-test split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y_categorical, test_size=0.2, random_state=42
 )
 
-
-# ==========================
-# CLASS WEIGHTS
-# ==========================
+# 🔹 Class weights
 class_weights = compute_class_weight(
     class_weight='balanced',
     classes=np.unique(y_encoded),
     y=y_encoded
 )
-
 class_weights = dict(enumerate(class_weights))
 
+# 🔹 Build model
+model = build_model(X.shape[1], y_categorical.shape[1])
 
-# ==========================
-# BUILD MODEL
-# ==========================
-model = build_model(X.shape[1])
-
-
-# ==========================
-# COMPILE
-# ==========================
-model.compile(
-    optimizer='adam',
-    loss='categorical_crossentropy',
-    metrics=['accuracy']
+# 🔹 Early stopping
+early_stop = EarlyStopping(
+    monitor='val_loss',
+    patience=10,
+    restore_best_weights=True
 )
 
-
-# ==========================
-# TRAIN
-# ==========================
+# 🔹 Train
 model.fit(
-    X_train,
-    y_train,
-    epochs=50,
+    X_train, y_train,
+    epochs=100,
     batch_size=16,
     validation_data=(X_test, y_test),
-    class_weight=class_weights
+    class_weight=class_weights,
+    callbacks=[early_stop]
 )
 
-
-# ==========================
-# EVALUATE
-# ==========================
-loss, acc = model.evaluate(X_test, y_test)
-
-print("\n🎯 Accuracy:", acc)
-
-
-# ==========================
-# SAVE MODEL
-# ==========================
+# 🔹 Save model
 model.save("models/panic_voice_model.h5")
 
-print("\n✅ Model saved successfully!")
+print("🎉 Training Complete!")
