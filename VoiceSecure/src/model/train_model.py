@@ -98,7 +98,40 @@ model.fit(
     callbacks=[early_stop]
 )
 
+
 # 🔹 Save model
 model.save("models/panic_voice_model.h5")
 
 print("🎉 Training Complete!")
+
+import numpy as np
+from sklearn.metrics import accuracy_score, f1_score, classification_report
+
+# 🔹 Predictions on TRAIN data
+y_train_pred = model.predict(X_train)
+y_train_pred_classes = np.argmax(y_train_pred, axis=1)
+
+y_train_true = np.argmax(y_train, axis=1)
+
+train_accuracy = accuracy_score(y_train_true, y_train_pred_classes)
+train_f1 = f1_score(y_train_true, y_train_pred_classes, average='weighted')
+
+# 🔹 Predictions on TEST data
+y_test_pred = model.predict(X_test)
+y_test_pred_classes = np.argmax(y_test_pred, axis=1)
+
+y_test_true = np.argmax(y_test, axis=1)
+
+test_accuracy = accuracy_score(y_test_true, y_test_pred_classes)
+test_f1 = f1_score(y_test_true, y_test_pred_classes, average='weighted')
+
+# 🔥 PRINT RESULTS
+print("\n📊 MODEL PERFORMANCE")
+print("Train Accuracy:", train_accuracy)
+print("Test Accuracy:", test_accuracy)
+print("Train F1 Score:", train_f1)
+print("Test F1 Score:", test_f1)
+
+# 🔍 Detailed Report
+print("\n📄 Classification Report (Test):")
+print(classification_report(y_test_true, y_test_pred_classes))

@@ -1,25 +1,15 @@
-from scipy.io import wavfile
+from utils.feature_extraction import extract_features
 import numpy as np
 
 def process_audio(file_path):
-    sample_rate, data = wavfile.read(file_path)
+    try:
+        features = extract_features(file_path)
+        features = np.array(features)
+        features = features.reshape(1, -1)
 
-    # Convert to float
-    data = data.astype(np.float32)
+        print("Feature shape:", features.shape)
 
-    # Normalize
-    data = data / np.max(np.abs(data))
+        return features
 
-    # Fix length (example: 16000 samples = 1 sec)
-    max_length = 16000
-
-    if len(data) > max_length:
-        data = data[:max_length]
-    else:
-        pad_width = max_length - len(data)
-        data = np.pad(data, (0, pad_width), mode='constant')
-
-    # Reshape for model
-    data = data.reshape(1, -1)
-
-    return data
+    except Exception as e:
+        raise Exception(f"Feature extraction error: {str(e)}")

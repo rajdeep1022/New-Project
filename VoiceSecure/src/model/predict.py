@@ -34,8 +34,9 @@ def predict_audio(file_path):
     predicted_label = encoder.inverse_transform([predicted_index])[0]
     confidence = preds[predicted_index]
 
-    print(f"\n🎯 Prediction: {predicted_label}")
-    print(f"Confidence: {confidence:.2f}")
+    #print(f"\n🎯 Prediction: {predicted_label}")
+    #print(f"Confidence: {confidence:.2f}")
+    return predicted_label, confidence
 
 
 # 🔹 Test with your file

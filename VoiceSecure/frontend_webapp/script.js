@@ -1,5 +1,3 @@
-console.log("JS Loaded ✅");
-
 async function uploadAudio() {
     console.log("🔥 Button clicked");
 
@@ -25,15 +23,28 @@ async function uploadAudio() {
         });
 
         const data = await res.json();
+
         console.log("Response:", data);
 
+        if (data.error) {
+            statusText.innerText = "Error: " + data.error;
+            return;
+        }
+
+        // ✅ UPDATE UI
         emotionText.innerText = data.emotion;
         scoreText.innerText = data.panic_score + "%";
 
-        statusText.innerText = data.panic_score > 60 ? "🚨 Panic" : "✅ Safe";
+        if (data.panic_score > 60) {
+            statusText.innerText = "🚨 Panic Detected!";
+            statusText.style.color = "red";
+        } else {
+            statusText.innerText = "✅ Safe";
+            statusText.style.color = "green";
+        }
 
     } catch (err) {
         console.error(err);
-        statusText.innerText = "Error connecting to server";
+        statusText.innerText = "Server error";
     }
 }
